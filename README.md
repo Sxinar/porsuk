@@ -1,17 +1,17 @@
-# 🦫 Porsuk - Temiz Okuma Modu
+# 🦫 Porsuk - Temiz Okuma Ortamı
 
-**Motto:** "İnternetin tozunu pasını kazar, sana sadece huzurlu bir okuma bırakır."
+Porsuk senin için istediğin sayfayı tarar istek ve takipçi kodlarını siler,sana sadece takipcisiz bir okuma bırakır."
 
 Porsuk, web sayfalarını reklam, çerez bannerları ve gereksiz görsel kirlilikten arındıran, **gizlilik odaklı** ve **maliyetsiz** bir "Reader Mode" uygulamasıdır.
 
-## 🛠️ Teknik Yığın
+##  Kullanılan Teknolijiler
 
 * **Framework:** Next.js 15 (App Router)
 * **Styling:** Tailwind CSS + shadcn/ui
 * **Parsing:** `@mozilla/readability` + `jsdom` 
 * **Theme:** Toprak tonları (amber, stone, brown) - Karanlık mod
 
-## 🚀 Başlarken
+## Başlarken
 
 ```bash
 npm run dev
@@ -19,7 +19,7 @@ npm run dev
 
 Uygulama [http://localhost:3000](http://localhost:3000) adresinde çalışır.
 
-## ✅ Mevcut Özellikler (Aşama 1)
+## Özellikler
 
 - **Gelişmiş Temizleme Motoru:** `@mozilla/readability` ile içerik temizleme
 - **Fallback Sistem:** Readability başarısız olduğunda manuel içerik çıkarma
@@ -31,20 +31,20 @@ Uygulama [http://localhost:3000](http://localhost:3000) adresinde çalışır.
 - **Biçimlendirme:** Otomatik paragraf, başlık ve liste formatlama
 - **Bot Koruması:** Gelişmiş User-Agent ve header'lar
 
-## 🔧 Kullanım
+##  Kullanım
 
 1. Herhangi bir makale URL'sini girin
 2. "Porsukla" butonuna tıklayın
 3. Temizlenmiş ve biçimlendirilmiş içeriği okuyun
 
-## 🐛 Hata Çözümleri
+##  Hata Çözümleri
 
 - **"Could not access this URL"**: Site botları engelliyor olabilir
 - **"Request timeout"**: Site çok yavaş yanıt veriyor
 - **"Could not extract content"**: Sayfa yapısı desteklenmiyor
 - **"Invalid URL format"**: URL formatı hatalı
 
-## 📋 Yapılacaklar (Aşama 2)
+##  Yapılacaklar
 
 - [ ] Supabase entegrasyonu
 - [ ] Kullanıcı auth sistemi (şimdilik misafir erişimi)
@@ -52,10 +52,14 @@ Uygulama [http://localhost:3000](http://localhost:3000) adresinde çalışır.
 - [ ] Metin boyutu ve font ayarları
 - [ ] PWA özellikleri
 - [ ] Paylaşım fonksiyonu
+- [ ] Otomatik URL tamamlama ve önerileri
 
-## 📝 Notlar
+## Not
 
 - 15 saniye timeout ile sitelerin yanıt süresi kontrol edilir
 - Türkçe dil desteği ve yerel hata mesajları
 - Otomatik içerik biçimlendirme (paragraflar, başlıklar, listeler)
 - CSS uyarıları görünebilir ama uygulama sorunsuz çalışır
+
+
+Kendime not: İleride isim kazıma ve sinsi ozelliginden dolayı Sansar olabilir ve kullanıcılar icin hafif ve kolay selfhost edilebilen bir rss uygulamasina dondurulebilir.
