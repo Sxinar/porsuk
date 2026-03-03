@@ -1,6 +1,6 @@
 # 🦫 Porsuk - Temiz Okuma Ortamı
 
-Porsuk senin için istediğin sayfayı tarar istek ve takipçi kodlarını siler,sana sadece takipcisiz bir okuma bırakır."
+Porsuk senin için istediğin sayfayı tarar istek ve takipçi kodlarını siler,sana sadece takipcisiz bir okuma bırakır.
 
 Porsuk, web sayfalarını reklam, çerez bannerları ve gereksiz görsel kirlilikten arındıran, **gizlilik odaklı** ve **maliyetsiz** bir "Reader Mode" uygulamasıdır.
 
