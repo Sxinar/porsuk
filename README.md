@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🦫 Porsuk - Temiz Okuma Modu
 
-## Getting Started
+**Motto:** "İnternetin tozunu pasını kazar, sana sadece huzurlu bir okuma bırakır."
 
-First, run the development server:
+Porsuk, web sayfalarını reklam, çerez bannerları ve gereksiz görsel kirlilikten arındıran, **gizlilik odaklı** ve **maliyetsiz** bir "Reader Mode" uygulamasıdır.
+
+## 🛠️ Teknik Yığın
+
+* **Framework:** Next.js 15 (App Router)
+* **Styling:** Tailwind CSS + shadcn/ui
+* **Parsing:** `@mozilla/readability` + `jsdom` 
+* **Theme:** Toprak tonları (amber, stone, brown) - Karanlık mod
+
+## 🚀 Başlarken
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Uygulama [http://localhost:3000](http://localhost:3000) adresinde çalışır.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✅ Mevcut Özellikler (Aşama 1)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Gelişmiş Temizleme Motoru:** `@mozilla/readability` ile içerik temizleme
+- **Fallback Sistem:** Readability başarısız olduğunda manuel içerik çıkarma
+- **Gelişmiş Hata Yönetimi:** Spesifik hata mesajları ve timeout handling
+- **API Endpoint:** `/api/porsukla` - URL temizleme servisi
+- **Modern UI:** shadcn/ui bileşenleri
+- **Karanlık Tema:** Toprak tonları ile göz yormayan tasarım
+- **Yükleme Animasyonu:** Skeleton bileşeni
+- **Biçimlendirme:** Otomatik paragraf, başlık ve liste formatlama
+- **Bot Koruması:** Gelişmiş User-Agent ve header'lar
 
-## Learn More
+## 🔧 Kullanım
 
-To learn more about Next.js, take a look at the following resources:
+1. Herhangi bir makale URL'sini girin
+2. "Porsukla" butonuna tıklayın
+3. Temizlenmiş ve biçimlendirilmiş içeriği okuyun
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🐛 Hata Çözümleri
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **"Could not access this URL"**: Site botları engelliyor olabilir
+- **"Request timeout"**: Site çok yavaş yanıt veriyor
+- **"Could not extract content"**: Sayfa yapısı desteklenmiyor
+- **"Invalid URL format"**: URL formatı hatalı
 
-## Deploy on Vercel
+## 📋 Yapılacaklar (Aşama 2)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [ ] Supabase entegrasyonu
+- [ ] Kullanıcı auth sistemi (şimdilik misafir erişimi)
+- [ ] Okuma listesi ve kitaplık
+- [ ] Metin boyutu ve font ayarları
+- [ ] PWA özellikleri
+- [ ] Paylaşım fonksiyonu
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📝 Notlar
+
+- 15 saniye timeout ile sitelerin yanıt süresi kontrol edilir
+- Türkçe dil desteği ve yerel hata mesajları
+- Otomatik içerik biçimlendirme (paragraflar, başlıklar, listeler)
+- CSS uyarıları görünebilir ama uygulama sorunsuz çalışır

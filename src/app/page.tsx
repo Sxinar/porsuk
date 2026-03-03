@@ -1,65 +1,170 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+interface ArticleData {
+  title: string;
+  content: string;
+  byline: string;
+  siteName: string;
+  excerpt: string;
+  length: number;
+}
 
 export default function Home() {
+  const [url, setUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [article, setArticle] = useState<ArticleData | null>(null);
+  const [error, setError] = useState('');
+
+  const handlePorsukla = async () => {
+    if (!url.trim()) {
+      setError('Lütfen bir URL girin');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setArticle(null);
+
+    try {
+      const response = await fetch('/api/porsukla', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Bir hata oluştu');
+      }
+
+      const data = await response.json();
+      setArticle(data);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Bilinmeyen hata';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handlePorsukla();
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4 text-amber-600 dark:text-amber-500">
+            🦫 Porsuk
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            &quot;İnternetin tozunu pasını kazar, sana sadece huzurlu bir okuma bırakır.&quot;
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        {/* URL Input Section */}
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="flex gap-3">
+            <Input
+              type="url"
+              placeholder="Okunacak makalenin URL'sini girin..."
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="flex-1"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <Button 
+              onClick={handlePorsukla} 
+              disabled={loading}
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              {loading ? 'Porsuklanıyor...' : 'Porsukla'}
+            </Button>
+          </div>
+          {error && (
+            <p className="text-destructive text-sm mt-2">{error}</p>
+          )}
         </div>
-      </main>
+
+        {/* Loading State */}
+        {loading && (
+          <div className="max-w-4xl mx-auto">
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-8 w-3/4" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+                <Skeleton className="h-4 w-4/5" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Article Display */}
+        {article && !loading && (
+          <div className="max-w-4xl mx-auto">
+            <Card>
+              <CardHeader>
+                <div className="space-y-2">
+                  <CardTitle className="text-2xl font-bold text-amber-700 dark:text-amber-400">
+                    {article.title}
+                  </CardTitle>
+                  {article.byline && (
+                    <p className="text-muted-foreground">{article.byline}</p>
+                  )}
+                  {article.siteName && (
+                    <p className="text-sm text-muted-foreground">
+                      Kaynak: {article.siteName}
+                    </p>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div 
+                  className="max-w-none leading-relaxed space-y-4 article-content"
+                  dangerouslySetInnerHTML={{ __html: article.content }}
+                />
+                {article.excerpt && (
+                  <div className="mt-6 pt-6 border-t border-border">
+                    <p className="text-sm text-muted-foreground italic">
+                      {article.excerpt}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!article && !loading && !error && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🦫</div>
+            <h2 className="text-2xl font-semibold mb-2 text-amber-600 dark:text-amber-500">
+              Temiz bir okuma deneyimi için hazır
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Yukarıya bir URL girin ve Porsuk&apos;un sihrini izleyin. Reklamlar, çerez bannerları ve görsel kirlilik ortadan kalksın.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
