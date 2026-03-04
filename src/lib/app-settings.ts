@@ -15,29 +15,16 @@ export const SETTINGS_STORAGE_KEY = 'porsuk-app-settings';
 export const HISTORY_STORAGE_KEY = 'porsuk-url-history';
 
 export const DEFAULT_SOURCES: SourceConfig[] = [
+  { label: 'Artado Blog', url: 'https://artado.xyz/blog' },
+  { label: 'sxi.is-a.dev', url: 'https://sxi.is-a.dev' },
   { label: 'Hacker News', url: 'https://news.ycombinator.com/' },
-  { label: 'HNRSS Frontpage', url: 'https://hnrss.org/frontpage' },
-  { label: 'Lobsters', url: 'https://lobste.rs/' },
-  { label: 'Product Hunt', url: 'https://www.producthunt.com/' },
-  { label: 'TechCrunch', url: 'https://techcrunch.com/' },
-  { label: 'The Verge', url: 'https://www.theverge.com/' },
-  { label: 'BBC Turkce', url: 'https://www.bbc.com/turkce' },
-  { label: 'NTV', url: 'https://www.ntv.com.tr' },
-  { label: 'Haberturk', url: 'https://www.haberturk.com/' },
-  { label: 'T24', url: 'https://t24.com.tr/' },
-  { label: 'TRT Haber', url: 'https://www.trthaber.com/' },
-  { label: 'Anadolu Ajansi', url: 'https://www.aa.com.tr/tr' },
-  { label: 'Sozcu', url: 'https://www.sozcu.com.tr/' },
-  { label: 'Hurriyet', url: 'https://www.hurriyet.com.tr/' },
-  { label: 'Dunya Gazetesi', url: 'https://www.dunya.com/' },
-  { label: 'Webrazzi', url: 'https://webrazzi.com/' },
   { label: 'ShiftDelete', url: 'https://shiftdelete.net/' },
-  { label: 'DW Turkce', url: 'https://www.dw.com/tr/' },
+  { label: 'BBC Turkce', url: 'https://www.bbc.com/turkce' },
 ];
 
 export const DEFAULT_SETTINGS: AppSettings = {
   recommendedSources: DEFAULT_SOURCES,
-  selectedRecommendedSourceUrls: DEFAULT_SOURCES.map((source) => source.url),
+  selectedRecommendedSourceUrls: [],
   showRecommendedSources: true,
   enableHistory: true,
   showAnalysis: true,
@@ -77,13 +64,11 @@ export function sanitizeSettings(value: unknown): AppSettings {
   const selectedRecommendedSourceUrls = Array.isArray(candidate.selectedRecommendedSourceUrls)
     ? candidate.selectedRecommendedSourceUrls
         .filter((url): url is string => typeof url === 'string' && allowedSourceSet.has(url))
-    : recommendedSources.map((source) => source.url);
+    : [];
 
   return {
     recommendedSources: recommendedSources.length ? recommendedSources : DEFAULT_SOURCES,
-    selectedRecommendedSourceUrls: selectedRecommendedSourceUrls.length
-      ? selectedRecommendedSourceUrls
-      : (recommendedSources.length ? recommendedSources : DEFAULT_SOURCES).map((source) => source.url),
+    selectedRecommendedSourceUrls,
     showRecommendedSources: candidate.showRecommendedSources ?? true,
     enableHistory: candidate.enableHistory ?? true,
     showAnalysis: candidate.showAnalysis ?? true,

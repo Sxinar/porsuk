@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   AppSettings,
+  DEFAULT_SETTINGS,
   loadSettingsFromStorage,
   readHistoryFromStorage,
   saveHistoryToStorage,
@@ -125,15 +126,11 @@ export default function Home() {
   const [feed, setFeed] = useState<FeedData | null>(null);
   const [listing, setListing] = useState<ListingData | null>(null);
   const [error, setError] = useState('');
-  const [settings, setSettings] = useState<AppSettings>(() => loadSettingsFromStorage());
-  const [urlHistory, setUrlHistory] = useState<string[]>(() => {
-    const initialSettings = loadSettingsFromStorage();
-    return initialSettings.enableHistory ? readHistoryFromStorage() : [];
-  });
-  const [selectedRecommendedUrls, setSelectedRecommendedUrls] = useState<string[]>(() => {
-    const initialSettings = loadSettingsFromStorage();
-    return initialSettings.selectedRecommendedSourceUrls;
-  });
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [urlHistory, setUrlHistory] = useState<string[]>([]);
+  const [selectedRecommendedUrls, setSelectedRecommendedUrls] = useState<string[]>(
+    DEFAULT_SETTINGS.selectedRecommendedSourceUrls
+  );
   const [selectedFilterSources, setSelectedFilterSources] = useState<string[]>([]);
   const [todayOnly, setTodayOnly] = useState(false);
   const [silentMode, setSilentMode] = useState(false);
@@ -143,6 +140,21 @@ export default function Home() {
     if (!settings.enableHistory) return;
     saveHistoryToStorage(urlHistory);
   }, [settings.enableHistory, urlHistory]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const next = loadSettingsFromStorage();
+      setSettings(next);
+      setSelectedRecommendedUrls(next.selectedRecommendedSourceUrls);
+      if (next.enableHistory) {
+        setUrlHistory(readHistoryFromStorage());
+      } else {
+        setUrlHistory([]);
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const syncSettings = () => {
@@ -313,9 +325,9 @@ export default function Home() {
   }, [settings.enableHistory]);
 
   const processMultipleSources = useCallback(async () => {
-    const targets = selectedRecommendedUrls.length ? selectedRecommendedUrls : settings.recommendedSources.map((source) => source.url);
+    const targets = selectedRecommendedUrls;
     await processUrlBatch(targets, 'Seçili Kaynaklar', 'Birden fazla kaynaktan birleştirilmiş akış');
-  }, [processUrlBatch, selectedRecommendedUrls, settings.recommendedSources]);
+  }, [processUrlBatch, selectedRecommendedUrls]);
 
   const handlePorsukla = async () => {
     const parts = parseMultipleUrls(url);
@@ -371,11 +383,9 @@ export default function Home() {
               <Button variant="outline" size="sm">Ayarlar</Button>
             </Link>
           </div>
-          <Link href="/" className="inline-block">
-            <h1 className="text-4xl font-bold mb-3 text-amber-600 dark:text-amber-500 flex items-center justify-center gap-3">
-              <Image src="/favicon.ico" alt="Porsuk" width={42} height={42} className="h-10 w-10 rounded-md" />
-              <span>Porsuk</span>
-            </h1>
+          <Link href="/" className="inline-flex flex-col items-center mb-3">
+            <Image src="/favicon.ico" alt="Porsuk" width={50} height={50} className="h-12 w-12 rounded-md mb-2" />
+            <h1 className="text-4xl font-bold text-amber-600 dark:text-amber-500">Porsuk</h1>
           </Link>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto">
             İnternetin tozunu pasını kazar, sana sadece huzurlu bir okuma bırakır.

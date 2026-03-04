@@ -1,12 +1,14 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
   AppSettings,
+  DEFAULT_SETTINGS,
   DEFAULT_SOURCES,
   clearHistoryInStorage,
   loadSettingsFromStorage,
@@ -22,12 +24,20 @@ function normalizeUrl(raw: string) {
 }
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<AppSettings>(() => loadSettingsFromStorage());
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [sourceLabel, setSourceLabel] = useState('');
   const [sourceUrl, setSourceUrl] = useState('');
   const [message, setMessage] = useState('');
   const [extensionCopied, setExtensionCopied] = useState(false);
   const [extensionTarget, setExtensionTarget] = useState<'chrome' | 'firefox'>('chrome');
+  const [showGuideModal, setShowGuideModal] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSettings(loadSettingsFromStorage());
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const persist = (next: AppSettings) => {
     const safe = sanitizeSettings(next);
@@ -158,11 +168,30 @@ export default function SettingsPage() {
     setTimeout(() => setExtensionCopied(false), 1500);
   };
 
+  const guideSteps = extensionTarget === 'chrome'
+    ? [
+        'chrome://extensions veya edge://extensions açın.',
+        'Developer mode seçeneğini aktif edin.',
+        'Load unpacked ile public/extensions/chrome klasörünü seçin.',
+        'Uzantı ayarından hedef adresi kontrol edin: https://porsuk.vercel.app',
+        'Bir sayfada sağ tık -> Porsuk ile Oku ile kullanın.',
+      ]
+    : [
+        'about:debugging#/runtime/this-firefox adresini açın.',
+        'Load Temporary Add-on seçeneğini tıklayın.',
+        'public/extensions/firefox/manifest.json dosyasını seçin.',
+        'Uzantı ayarından hedef adresi kontrol edin: https://porsuk.vercel.app',
+        'Not: Kalıcı dağıtım için AMO imzalı sürüm gerekir.',
+      ];
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8 max-w-4xl space-y-6">
-        <div className="flex items-center justify-between gap-3">
-          <h1 className="text-3xl font-bold text-amber-600 dark:text-amber-500">Porsuk Ayarları</h1>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-col items-start">
+            <Image src="/favicon.ico" alt="Porsuk" width={40} height={40} className="h-10 w-10 rounded-md mb-2" />
+            <h1 className="text-3xl font-bold text-amber-600 dark:text-amber-500">Porsuk Ayarları</h1>
+          </div>
           <Link href="/">
             <Button variant="outline">Ana Sayfa</Button>
           </Link>
@@ -304,9 +333,9 @@ export default function SettingsPage() {
               </Button>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <a href={`/extensions/${extensionTarget}/README.md`} target="_blank" rel="noreferrer">
-                <Button variant="outline">Kurulum Rehberi</Button>
-              </a>
+              <Button variant="outline" onClick={() => setShowGuideModal(true)}>
+                Kurulum Rehberi
+              </Button>
               <a
                 href={extensionTarget === 'chrome'
                   ? '/extensions/chrome/porsuk-chrome-extension.zip'
@@ -339,6 +368,46 @@ export default function SettingsPage() {
 
         {message && <p className="text-sm text-muted-foreground">{message}</p>}
       </div>
+
+      {showGuideModal && (
+        <div className="fixed inset-0 z-50 bg-black/55 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl rounded-2xl border border-border bg-card shadow-2xl">
+            <div className="p-5 border-b border-border flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Kurulum Rehberi</p>
+                <h2 className="text-xl font-semibold text-amber-600 dark:text-amber-500">
+                  {extensionTarget === 'chrome' ? 'Chrome / Edge / Brave' : 'Firefox'} Uzantı Kurulumu
+                </h2>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setShowGuideModal(false)}>
+                Kapat
+              </Button>
+            </div>
+
+            <div className="p-5 space-y-3">
+              {guideSteps.map((step, index) => (
+                <div key={`${index}-${step.slice(0, 15)}`} className="rounded-xl border border-border p-3">
+                  <p className="text-sm leading-relaxed">
+                    <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-amber-600 text-white text-xs mr-2">
+                      {index + 1}
+                    </span>
+                    {step}
+                  </p>
+                </div>
+              ))}
+
+              <div className="pt-2 flex flex-wrap gap-2">
+                <a href={`/extensions/${extensionTarget}/README.md`} target="_blank" rel="noreferrer">
+                  <Button variant="outline" size="sm">Detay Dokuman</Button>
+                </a>
+                <Button variant="outline" size="sm" onClick={() => setShowGuideModal(false)}>
+                  Tamam
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
