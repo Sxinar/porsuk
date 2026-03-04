@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -189,7 +188,6 @@ export default function SettingsPage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl space-y-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col items-start">
-            <Image src="/favicon.ico" alt="Porsuk" width={40} height={40} className="h-10 w-10 rounded-md mb-2" />
             <h1 className="text-3xl font-bold text-amber-600 dark:text-amber-500">Porsuk Ayarları</h1>
           </div>
           <Link href="/">
