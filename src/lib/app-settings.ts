@@ -13,6 +13,7 @@ export interface AppSettings {
 
 export const SETTINGS_STORAGE_KEY = 'porsuk-app-settings';
 export const HISTORY_STORAGE_KEY = 'porsuk-url-history';
+const DEPRECATED_SOURCE_URLS = new Set(['https://shiftdelete.net/']);
 
 export const DEFAULT_SOURCES: SourceConfig[] = [
   { label: 'Artado Blog', url: 'https://artado.xyz/blog' },
@@ -57,7 +58,7 @@ export function sanitizeSettings(value: unknown): AppSettings {
           label: item.label.trim().slice(0, 40),
           url: normalizeUrl(item.url.trim()),
         }))
-        .filter((item) => item.url)
+        .filter((item) => item.url && !DEPRECATED_SOURCE_URLS.has(item.url))
     : DEFAULT_SOURCES;
 
   const allowedSourceSet = new Set(recommendedSources.map((source) => source.url));

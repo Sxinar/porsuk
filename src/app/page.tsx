@@ -283,6 +283,7 @@ export default function Home() {
       }
 
       const mergedItems = new Map<string, NewsItem>();
+      let firstArticle: ArticleData | null = null;
       const trackerSeed: TrackerReport = {
         totalRemoved: 0,
         byType: {},
@@ -299,6 +300,8 @@ export default function Home() {
           for (const item of entry.data.items) {
             if (!mergedItems.has(item.link)) mergedItems.set(item.link, item);
           }
+        } else if (!firstArticle) {
+          firstArticle = entry.data;
         }
       }
 
@@ -314,8 +317,11 @@ export default function Home() {
           trackerReport: trackerSeed,
         });
         setUrl(targets.join(', '));
+      } else if (firstArticle) {
+        setArticle(firstArticle);
+        setUrl(firstArticle.originalUrl);
       } else {
-        setError('Girilen URL\'lerden listelenebilir haber bulunamadı.');
+        setError('Girilen URL\'lerden içerik çıkarılamadı.');
       }
     } catch {
       setError('URL\'ler toplu işlenirken bir hata oluştu.');
@@ -448,7 +454,15 @@ export default function Home() {
                     >
                       Tümünü Seç
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => setSelectedRecommendedUrls([])}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedRecommendedUrls([]);
+                        setUrl('');
+                        setError('');
+                      }}
+                    >
                       Seçimi Temizle
                     </Button>
                   </div>
