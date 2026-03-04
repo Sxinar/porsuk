@@ -1,0 +1,24 @@
+{
+  "manifest_version": 2,
+  "name": "Porsuk Read (Firefox)",
+  "version": "1.1.0",
+  "description": "Açık sekmeyi Porsuk'ta temiz okuma modunda açar.",
+  "permissions": ["contextMenus", "tabs", "storage"],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_title": "Porsuk ile Oku"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "applications": {
+    "gecko": {
+      "id": "porsuk-read@porsuk.app",
+      "strict_min_version": "109.0"
+    }
+  }
+}

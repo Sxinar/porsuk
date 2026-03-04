@@ -1,0 +1,130 @@
+export interface SourceConfig {
+  label: string;
+  url: string;
+}
+
+export interface AppSettings {
+  recommendedSources: SourceConfig[];
+  selectedRecommendedSourceUrls: string[];
+  showRecommendedSources: boolean;
+  enableHistory: boolean;
+  showAnalysis: boolean;
+}
+
+export const SETTINGS_STORAGE_KEY = 'porsuk-app-settings';
+export const HISTORY_STORAGE_KEY = 'porsuk-url-history';
+
+export const DEFAULT_SOURCES: SourceConfig[] = [
+  { label: 'Hacker News', url: 'https://news.ycombinator.com/' },
+  { label: 'HNRSS Frontpage', url: 'https://hnrss.org/frontpage' },
+  { label: 'Lobsters', url: 'https://lobste.rs/' },
+  { label: 'Product Hunt', url: 'https://www.producthunt.com/' },
+  { label: 'TechCrunch', url: 'https://techcrunch.com/' },
+  { label: 'The Verge', url: 'https://www.theverge.com/' },
+  { label: 'BBC Turkce', url: 'https://www.bbc.com/turkce' },
+  { label: 'NTV', url: 'https://www.ntv.com.tr' },
+  { label: 'Haberturk', url: 'https://www.haberturk.com/' },
+  { label: 'T24', url: 'https://t24.com.tr/' },
+  { label: 'TRT Haber', url: 'https://www.trthaber.com/' },
+  { label: 'Anadolu Ajansi', url: 'https://www.aa.com.tr/tr' },
+  { label: 'Sozcu', url: 'https://www.sozcu.com.tr/' },
+  { label: 'Hurriyet', url: 'https://www.hurriyet.com.tr/' },
+  { label: 'Dunya Gazetesi', url: 'https://www.dunya.com/' },
+  { label: 'Webrazzi', url: 'https://webrazzi.com/' },
+  { label: 'ShiftDelete', url: 'https://shiftdelete.net/' },
+  { label: 'DW Turkce', url: 'https://www.dw.com/tr/' },
+];
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  recommendedSources: DEFAULT_SOURCES,
+  selectedRecommendedSourceUrls: DEFAULT_SOURCES.map((source) => source.url),
+  showRecommendedSources: true,
+  enableHistory: true,
+  showAnalysis: true,
+};
+
+function normalizeUrl(raw: string) {
+  const trimmed = raw.trim();
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
+export function sanitizeSettings(value: unknown): AppSettings {
+  if (!value || typeof value !== 'object') return DEFAULT_SETTINGS;
+  const candidate = value as Partial<AppSettings>;
+
+  const recommendedSources = Array.isArray(candidate.recommendedSources)
+    ? candidate.recommendedSources
+        .filter((item): item is SourceConfig => {
+          return Boolean(
+            item &&
+              typeof item === 'object' &&
+              typeof item.label === 'string' &&
+              typeof item.url === 'string' &&
+              item.label.trim() &&
+              item.url.trim()
+          );
+        })
+        .map((item) => ({
+          label: item.label.trim().slice(0, 40),
+          url: normalizeUrl(item.url.trim()),
+        }))
+        .filter((item) => item.url)
+    : DEFAULT_SOURCES;
+
+  const allowedSourceSet = new Set(recommendedSources.map((source) => source.url));
+  const selectedRecommendedSourceUrls = Array.isArray(candidate.selectedRecommendedSourceUrls)
+    ? candidate.selectedRecommendedSourceUrls
+        .filter((url): url is string => typeof url === 'string' && allowedSourceSet.has(url))
+    : recommendedSources.map((source) => source.url);
+
+  return {
+    recommendedSources: recommendedSources.length ? recommendedSources : DEFAULT_SOURCES,
+    selectedRecommendedSourceUrls: selectedRecommendedSourceUrls.length
+      ? selectedRecommendedSourceUrls
+      : (recommendedSources.length ? recommendedSources : DEFAULT_SOURCES).map((source) => source.url),
+    showRecommendedSources: candidate.showRecommendedSources ?? true,
+    enableHistory: candidate.enableHistory ?? true,
+    showAnalysis: candidate.showAnalysis ?? true,
+  };
+}
+
+export function loadSettingsFromStorage(): AppSettings {
+  if (typeof window === 'undefined') return DEFAULT_SETTINGS;
+  try {
+    const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (!raw) return DEFAULT_SETTINGS;
+    return sanitizeSettings(JSON.parse(raw));
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+}
+
+export function saveSettingsToStorage(settings: AppSettings) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+}
+
+export function readHistoryFromStorage(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(HISTORY_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item): item is string => typeof item === 'string' && Boolean(item.trim()));
+  } catch {
+    return [];
+  }
+}
+
+export function saveHistoryToStorage(history: string[]) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+}
+
+export function clearHistoryInStorage() {
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem(HISTORY_STORAGE_KEY);
+}
