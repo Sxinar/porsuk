@@ -1,5 +1,5 @@
 const MENU_ID = 'porsuk-read-current';
-const DEFAULT_BASE = 'http://localhost:3000';
+const DEFAULT_BASE = 'https://porsuk.vercel.app';
 
 function normalizeBase(url) {
   if (!url) return DEFAULT_BASE;

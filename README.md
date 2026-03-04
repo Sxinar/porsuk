@@ -23,7 +23,7 @@ Uygulama `http://localhost:3000` adresinde çalışır.
 - RSS/Atom feed algılama
 - Haber liste sayfası algılama (ana sayfa URL’lerini kartlı haber akışına çevirme)
 - Ayarlardan yönetilen öneri kaynak butonları (çoklu seçim)
-- Hacker News + teknoloji/haber kaynak paketi (ayarlardan tek tık eklenebilir)
+- Hacker News + teknoloji/haber kaynak paketi (ayarlardan eklenebilir)
 - Ana sayfada öneri kaynaklarından çoklu seçim ve toplu tarama
 - Arama kutusunda çoklu URL desteği (virgül / satır ayrımı)
 - Kaynak filtresi (çoklu seçim, hızlı sıfırlama)

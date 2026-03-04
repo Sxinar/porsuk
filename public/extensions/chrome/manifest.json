@@ -7,8 +7,18 @@
   "background": {
     "service_worker": "service-worker.js"
   },
+  "icons": {
+    "16": "favicon.ico",
+    "32": "favicon.ico",
+    "48": "favicon.ico",
+    "128": "favicon.ico"
+  },
   "action": {
-    "default_title": "Porsuk ile Oku"
+    "default_title": "Porsuk ile Oku",
+    "default_icon": {
+      "16": "favicon.ico",
+      "32": "favicon.ico"
+    }
   },
   "options_page": "options.html"
 }

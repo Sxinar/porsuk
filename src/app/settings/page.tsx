@@ -189,12 +189,12 @@ export default function SettingsPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <Input
-                placeholder="Kaynak adı (örn: BBC)"
+                placeholder="Kaynak adı (örn: Artado)"
                 value={sourceLabel}
                 onChange={(e) => setSourceLabel(e.target.value)}
               />
               <Input
-                placeholder="Kaynak URL (örn: bbc.com/news)"
+                placeholder="Kaynak URL (örn: forum.artado.xyz/)"
                 value={sourceUrl}
                 onChange={(e) => setSourceUrl(e.target.value)}
               />

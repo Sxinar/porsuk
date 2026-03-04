@@ -4,7 +4,7 @@
 1. `about:debugging#/runtime/this-firefox` açın.
 2. `Load Temporary Add-on` seçin.
 3. Bu klasörden `manifest.json` dosyasını seçin.
-4. Uzantı ayarından Porsuk adresini girin.
+4. Uzantı ayarından Porsuk adresini girin (varsayılan: `https://porsuk.vercel.app`).
 
 Not: Geçici yükleme, tarayıcı yeniden başlayınca sıfırlanır.
 Not 2: Firefox doğrulanmamış ZIP/XPI paketlerini doğrudan kalıcı kurmaz.
