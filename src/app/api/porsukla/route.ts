@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Readability } from '@mozilla/readability';
 import { JSDOM } from 'jsdom';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
+
 interface TrackerReport {
   totalRemoved: number;
   byType: Record<string, number>;
@@ -561,6 +565,15 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('Failed to fetch')) {
         return NextResponse.json({ error: 'URL erişilemedi. Site otomasyon engeli uyguluyor olabilir.' }, { status: 403 });
       }
+
+      const status = /Method Not Allowed/i.test(error.message) ? 405 : 500;
+      return NextResponse.json(
+        {
+          error: 'URL işlenemedi. Lütfen adresi kontrol edin.',
+          detail: process.env.NODE_ENV !== 'production' ? error.message : undefined,
+        },
+        { status }
+      );
     }
 
     return NextResponse.json(
