@@ -232,7 +232,11 @@ export default function Home() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Bir hata oluştu');
+        const errorMessage =
+          errorData?.detail && typeof errorData.detail === 'string'
+            ? `${errorData.error || 'Bir hata oluştu'} (${errorData.detail})`
+            : errorData?.error || 'Bir hata oluştu';
+        throw new Error(errorMessage);
       }
 
       setUrl(normalized);

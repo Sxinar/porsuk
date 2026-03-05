@@ -147,6 +147,10 @@ function isLikelyFeed(raw: string, contentType: string) {
   );
 }
 
+function safeErrorDetail(message: string) {
+  return message.replace(/\s+/g, ' ').trim().slice(0, 220);
+}
+
 function parseFeed(raw: string, baseUrl: string) {
   const xmlDom = new (getJSDOM())(raw, { contentType: 'text/xml', url: baseUrl });
   const document = xmlDom.window.document;
@@ -169,6 +173,7 @@ function parseFeed(raw: string, baseUrl: string) {
 
   const items: FeedItem[] = sourceItems
     .map((item) => {
+      try {
       const title = item.querySelector('title')?.textContent?.trim() || 'Başlıksız';
 
       const rssLink = item.querySelector('link')?.textContent?.trim() || '';
@@ -208,7 +213,11 @@ function parseFeed(raw: string, baseUrl: string) {
         source,
         readingTimeMinutes,
       };
+      } catch {
+        return null;
+      }
     })
+    .filter((item): item is FeedItem => Boolean(item))
     .filter((item) => item.link)
     .slice(0, 50);
 
@@ -442,7 +451,13 @@ export async function POST(request: NextRequest) {
   try {
     await ensureParserLibraries();
 
-    const { url } = await request.json();
+    let url = '';
+    try {
+      const body = await request.json();
+      url = typeof body?.url === 'string' ? body.url : '';
+    } catch {
+      return NextResponse.json({ error: 'Geçersiz istek gövdesi' }, { status: 400 });
+    }
 
     if (!url) {
       return NextResponse.json({ error: 'URL gerekli' }, { status: 400 });
@@ -477,7 +492,11 @@ export async function POST(request: NextRequest) {
     const raw = await response.text();
 
     if (isLikelyFeed(raw, contentType)) {
-      return NextResponse.json(parseFeed(raw, parsedUrl.toString()));
+      try {
+        return NextResponse.json(parseFeed(raw, parsedUrl.toString()));
+      } catch (feedError) {
+        console.warn('Feed parse failed, continuing with HTML parser:', feedError);
+      }
     }
 
     const dom = new (getJSDOM())(raw, { url: parsedUrl.toString() });
@@ -597,7 +616,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'URL işlenemedi. Lütfen adresi kontrol edin.',
-          detail: process.env.NODE_ENV !== 'production' ? error.message : undefined,
+          detail: safeErrorDetail(error.message),
         },
         { status }
       );
