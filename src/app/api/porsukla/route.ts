@@ -1,10 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Readability } from '@mozilla/readability';
-import { JSDOM } from 'jsdom';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
+
+type JSDOMCtor = typeof import('jsdom').JSDOM;
+type ReadabilityCtor = typeof import('@mozilla/readability').Readability;
+
+let jsdomCtor: JSDOMCtor | null = null;
+let readabilityCtor: ReadabilityCtor | null = null;
+
+async function ensureParserLibraries() {
+  if (jsdomCtor && readabilityCtor) return;
+  const [{ JSDOM }, { Readability }] = await Promise.all([import('jsdom'), import('@mozilla/readability')]);
+  jsdomCtor = JSDOM;
+  readabilityCtor = Readability;
+}
+
+function getJSDOM() {
+  if (!jsdomCtor) {
+    throw new Error('Parser kütüphaneleri yüklenemedi (JSDOM).');
+  }
+  return jsdomCtor;
+}
+
+function getReadability() {
+  if (!readabilityCtor) {
+    throw new Error('Parser kütüphaneleri yüklenemedi (Readability).');
+  }
+  return readabilityCtor;
+}
 
 interface TrackerReport {
   totalRemoved: number;
@@ -66,7 +91,7 @@ function wordsToMinutesFromText(text: string) {
 
 function cleanSnippet(raw: string) {
   if (!raw) return '';
-  const fragment = new JSDOM(`<body>${raw}</body>`);
+  const fragment = new (getJSDOM())(`<body>${raw}</body>`);
   return (fragment.window.document.body.textContent || '').replace(/\s+/g, ' ').trim();
 }
 
@@ -123,7 +148,7 @@ function isLikelyFeed(raw: string, contentType: string) {
 }
 
 function parseFeed(raw: string, baseUrl: string) {
-  const xmlDom = new JSDOM(raw, { contentType: 'text/xml', url: baseUrl });
+  const xmlDom = new (getJSDOM())(raw, { contentType: 'text/xml', url: baseUrl });
   const document = xmlDom.window.document;
 
   const rssItems = Array.from(document.querySelectorAll('channel > item'));
@@ -268,7 +293,7 @@ function removeTrackers(document: Document, pageUrl: string): TrackerReport {
 }
 
 function stripTrackingParamsFromLinks(html: string, pageUrl: string) {
-  const contentDom = new JSDOM(`<body>${html}</body>`, { url: pageUrl });
+  const contentDom = new (getJSDOM())(`<body>${html}</body>`, { url: pageUrl });
   const document = contentDom.window.document;
 
   const trackingKeys = ['fbclid', 'gclid', 'mc_cid', 'mc_eid', 'igshid', 'si'];
@@ -388,7 +413,7 @@ function extractNewsListing(document: Document, pageUrl: string) {
 }
 
 function getLinkStats(html: string, pageUrl: string) {
-  const dom = new JSDOM(`<body>${html}</body>`, { url: pageUrl });
+  const dom = new (getJSDOM())(`<body>${html}</body>`, { url: pageUrl });
   const doc = dom.window.document;
   const plainTextLength = (doc.body.textContent || '').replace(/\s+/g, ' ').trim().length;
   const links = Array.from(doc.querySelectorAll('a'));
@@ -402,7 +427,7 @@ function getLinkStats(html: string, pageUrl: string) {
 }
 
 function summaryBulletsFromHtml(html: string) {
-  const dom = new JSDOM(`<body>${html}</body>`);
+  const dom = new (getJSDOM())(`<body>${html}</body>`);
   const text = (dom.window.document.body.textContent || '').replace(/\s+/g, ' ').trim();
   const sentences = text
     .split(/(?<=[.!?])\s+/)
@@ -415,6 +440,8 @@ function summaryBulletsFromHtml(html: string) {
 
 export async function POST(request: NextRequest) {
   try {
+    await ensureParserLibraries();
+
     const { url } = await request.json();
 
     if (!url) {
@@ -453,13 +480,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(parseFeed(raw, parsedUrl.toString()));
     }
 
-    const dom = new JSDOM(raw, { url: parsedUrl.toString() });
+    const dom = new (getJSDOM())(raw, { url: parsedUrl.toString() });
     const document = dom.window.document;
 
     const trackerReport = removeTrackers(document, parsedUrl.toString());
     const listingItems = extractNewsListing(document, parsedUrl.toString());
 
-    const reader = new Readability(document, {
+    const reader = new (getReadability())(document, {
       charThreshold: 180,
       classesToPreserve: ['caption', 'figcaption', 'img'],
     });

@@ -13,14 +13,14 @@ export interface AppSettings {
 
 export const SETTINGS_STORAGE_KEY = 'porsuk-app-settings';
 export const HISTORY_STORAGE_KEY = 'porsuk-url-history';
-const DEPRECATED_SOURCE_URLS = new Set(['https://shiftdelete.net/']);
+const DEPRECATED_SOURCE_URLS = new Set<string>();
 
 export const DEFAULT_SOURCES: SourceConfig[] = [
-  { label: 'Artado Blog', url: 'https://artado.xyz/blog' },
-  { label: 'sxi.is-a.dev', url: 'https://sxi.is-a.dev' },
-  { label: 'Hacker News', url: 'https://news.ycombinator.com/' },
+  { label: 'TechCrunch', url: 'https://techcrunch.com/' },
+  { label: 'The Verge', url: 'https://www.theverge.com/tech' },
+  { label: 'Wired', url: 'https://www.wired.com/' },
+  { label: 'Webrazzi', url: 'https://webrazzi.com/' },
   { label: 'ShiftDelete', url: 'https://shiftdelete.net/' },
-  { label: 'BBC Turkce', url: 'https://www.bbc.com/turkce' },
 ];
 
 export const DEFAULT_SETTINGS: AppSettings = {
