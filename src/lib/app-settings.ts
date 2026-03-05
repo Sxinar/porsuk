@@ -13,14 +13,12 @@ export interface AppSettings {
 
 export const SETTINGS_STORAGE_KEY = 'porsuk-app-settings';
 export const HISTORY_STORAGE_KEY = 'porsuk-url-history';
-const DEPRECATED_SOURCE_URLS = new Set<string>();
 
 export const DEFAULT_SOURCES: SourceConfig[] = [
   { label: 'TechCrunch', url: 'https://techcrunch.com/' },
   { label: 'The Verge', url: 'https://www.theverge.com/tech' },
   { label: 'Wired', url: 'https://www.wired.com/' },
   { label: 'Webrazzi', url: 'https://webrazzi.com/' },
-  { label: 'ShiftDelete', url: 'https://shiftdelete.net/' },
 ];
 
 export const DEFAULT_SETTINGS: AppSettings = {
