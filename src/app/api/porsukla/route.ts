@@ -151,6 +151,10 @@ function safeErrorDetail(message: string) {
   return message.replace(/\s+/g, ' ').trim().slice(0, 220);
 }
 
+function isNetworkFetchError(message: string) {
+  return /failed to fetch|fetch failed|econnreset|enotfound|eai_again|certificate|tls|socket/i.test(message);
+}
+
 function parseFeed(raw: string, baseUrl: string) {
   const xmlDom = new (getJSDOM())(raw, { contentType: 'text/xml', url: baseUrl });
   const document = xmlDom.window.document;
@@ -608,15 +612,22 @@ export async function POST(request: NextRequest) {
       if (error.name === 'AbortError') {
         return NextResponse.json({ error: 'İstek zaman aşımına uğradı' }, { status: 408 });
       }
-      if (error.message.includes('Failed to fetch')) {
-        return NextResponse.json({ error: 'URL erişilemedi. Site otomasyon engeli uyguluyor olabilir.' }, { status: 403 });
+      if (isNetworkFetchError(error.message)) {
+        return NextResponse.json(
+          {
+            error: 'Kaynağa erişilemedi. Site bot koruması, TLS ya da ağ engeli uyguluyor olabilir.',
+            detail: safeErrorDetail(error.message),
+          },
+          { status: 502 }
+        );
       }
 
       const status = /Method Not Allowed/i.test(error.message) ? 405 : 500;
+      const maybeCode = (error as { code?: string }).code;
       return NextResponse.json(
         {
           error: 'URL işlenemedi. Lütfen adresi kontrol edin.',
-          detail: safeErrorDetail(error.message),
+          detail: safeErrorDetail(`${error.name}${maybeCode ? `:${maybeCode}` : ''} ${error.message}`),
         },
         { status }
       );

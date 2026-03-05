@@ -274,15 +274,33 @@ export default function Home() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: normalized }),
           });
-          if (!response.ok) return null;
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            const detail =
+              errorData?.detail && typeof errorData.detail === 'string'
+                ? ` (${errorData.detail})`
+                : '';
+            return {
+              normalized,
+              error: `${errorData?.error || `HTTP ${response.status}`}${detail}`,
+            };
+          }
           const data = (await response.json()) as ApiResponse;
           return { normalized, data };
         })
       );
 
-      const valid = results.filter((item): item is { normalized: string; data: ApiResponse } => Boolean(item));
+      const valid = results.filter(
+        (item): item is { normalized: string; data: ApiResponse } =>
+          Boolean(item && 'data' in item && item.data)
+      );
       if (!valid.length) {
-        setError('Girilen URL\'lerden içerik alınamadı.');
+        const firstError = results.find((item) => item && 'error' in item && item.error);
+        setError(
+          firstError && 'error' in firstError
+            ? `Girilen URL'lerden içerik alınamadı. ${firstError.error}`
+            : 'Girilen URL\'lerden içerik alınamadı.'
+        );
         return;
       }
 
